@@ -1,0 +1,8 @@
+<h2>Do you really want to blablabla?</h2>
+
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" (change)="setDisclaimer($event)" [checked]="welcomeFlowService.getData().disclaimer">
+  <label class="form-check-label" for="flexCheckDefault">
+    I accept the big BLA
+  </label>
+</div>

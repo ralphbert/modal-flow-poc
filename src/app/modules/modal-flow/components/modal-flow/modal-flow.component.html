@@ -1,0 +1,23 @@
+<header class="px-2 py-3">
+  <div class="d-flex justify-content-between">
+    <div>
+      <button *ngIf="!modalOrchestrator.isFirst()" (click)="modalOrchestrator.prev()">Prev</button>
+    </div>
+
+    <div>Step {{ modalOrchestrator.currentPage }} of {{ modalOrchestrator.totalPages }}</div>
+
+    <div>
+      <button *ngIf="!modalOrchestrator.isLast()" (click)="modalOrchestrator.next()" [disabled]="!modalOrchestrator.isValid()">Next</button>
+      <button *ngIf="modalOrchestrator.isLast()" (click)="modalOrchestrator.next()" [disabled]="!modalOrchestrator.isValid()">End</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div *ngComponentOutlet="currentComponent"></div>
+</main>
+
+<footer>
+  <hr>
+  Footer
+</footer>
