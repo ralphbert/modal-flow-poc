@@ -10,7 +10,7 @@ export interface WelcomeFlowState {
 }
 
 @Injectable()
-export class WelcomeFlowService extends ComponentFlowService<WelcomeFlowState> {
+export class WelcomeFlowStateService extends ComponentFlowService<WelcomeFlowState> {
   constructor() {
     super({
       settings: {

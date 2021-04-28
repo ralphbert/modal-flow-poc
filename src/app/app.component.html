@@ -1,5 +1,15 @@
 <div class="container py-3">
   <button (click)="startFlow1()">Open Flow!</button>
 
-  <pre>{{ data | json }}</pre>
+  <div class="row">
+    <div class="col">
+      <h2>Resulting data</h2>
+      <pre>{{ data | json }}</pre>
+    </div>
+    <div class="col">
+      <h2>Current flow meta data</h2>
+      <pre>TODO</pre>
+    </div>
+  </div>
+
 </div>

@@ -1,0 +1,14 @@
+<div *ngIf="loading" class="d-flex justify-content-center">
+  <app-loading-spinner></app-loading-spinner>
+</div>
+
+<div *ngIf="error">
+  <p>
+    {{ error.message }}
+  </p>
+  <button type="button" (click)="retry.emit()">Retry</button>
+</div>
+
+<div *ngIf="!loading && !error">
+  <ng-content></ng-content>
+</div>

@@ -3,6 +3,7 @@ import {CommonModule} from '@angular/common';
 import {ComponentFlowComponent} from './components/component-flow/component-flow.component';
 import {StepDirective} from './directives/step.directive';
 import {TitleDirective} from './directives/title.directive';
+import {UiModule} from '../ui/ui.module';
 
 @NgModule({
   declarations: [
@@ -13,10 +14,11 @@ import {TitleDirective} from './directives/title.directive';
   exports: [
     ComponentFlowComponent,
     StepDirective,
-    TitleDirective
+    TitleDirective,
   ],
   imports: [
-    CommonModule
+    CommonModule,
+    UiModule,
   ]
 })
 export class ComponentFlowModule {

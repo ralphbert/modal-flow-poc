@@ -1,8 +1,8 @@
-import {ChangeDetectionStrategy, Component, Injector} from '@angular/core';
-import {Observable} from 'rxjs';
+import {ChangeDetectionStrategy, Component, Injector, OnDestroy, OnInit} from '@angular/core';
+import {Observable, of, Subject, timer} from 'rxjs';
 import {BaseStepComponent} from '../../../component-flow/components/base-step/base-step.component';
-import {WelcomeFlowService, WelcomeFlowState} from '../../services/welcome-flow.service';
-import {map} from 'rxjs/operators';
+import {WelcomeFlowState, WelcomeFlowStateService} from '../../services/welcome-flow-state.service';
+import {catchError, switchMap, takeUntil, tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-settings',
@@ -10,18 +10,52 @@ import {map} from 'rxjs/operators';
   styleUrls: ['./settings.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SettingsComponent extends BaseStepComponent<WelcomeFlowState> {
+export class SettingsComponent extends BaseStepComponent<WelcomeFlowState> implements OnInit, OnDestroy {
+  loading = false;
+  error = null;
+  load$ = new Subject();
+  destroy$ = new Subject();
 
-  constructor(injector: Injector, public welcomeFlowService: WelcomeFlowService) {
+  constructor(
+    injector: Injector,
+    public welcomeFlowService: WelcomeFlowStateService,
+  ) {
     super(injector);
   }
 
-  canGoNext(): Observable<boolean> | boolean {
-    return this.stateService.getData().settings.name.length > 0;
+  ngOnInit(): void {
+    this.load$
+      .pipe(
+        tap(() => {
+          this.loading = true;
+          this.error = null;
+          this.changeDetectorRef.markForCheck();
+        }),
+        switchMap(() =>
+          this.loadRemoteDataOrFail().pipe(
+            catchError(error => {
+              this.error = error;
+              return of(null);
+            }),
+          )
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => {
+        this.loading = false;
+        this.changeDetectorRef.markForCheck();
+      });
+
+    this.load$.next();
   }
 
-  canGoBack(): Observable<boolean> | boolean {
-    return true;
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  disableNext(): boolean {
+    return this.loading || this.error || this.stateService.getData().settings.name.length <= 0;
   }
 
   onEnablePushes(checked: boolean): void {
@@ -40,5 +74,20 @@ export class SettingsComponent extends BaseStepComponent<WelcomeFlowState> {
         name,
       }
     });
+  }
+
+  onRetry(): void {
+    this.load$.next();
+  }
+
+  private loadRemoteDataOrFail(): Observable<number> {
+    return timer(2000 * Math.random() + 500)
+      .pipe(
+        tap(() => {
+          if (Math.random() < 0.5) {
+            throw new Error('Some demo error has been thrown!');
+          }
+        }),
+      );
   }
 }

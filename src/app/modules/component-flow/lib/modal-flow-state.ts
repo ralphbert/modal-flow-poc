@@ -1,12 +1,10 @@
 import {BehaviorSubject, Observable} from 'rxjs';
-import {ValidationErrors} from '@angular/forms';
 
 export interface ModalFlowMeta {
   isFirst: boolean;
   isLast: boolean;
   total: number;
   current: number;
-  errors: ValidationErrors;
 }
 
 export interface ModalFlowStateHandler<T> {

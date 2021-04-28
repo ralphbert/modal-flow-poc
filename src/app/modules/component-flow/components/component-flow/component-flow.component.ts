@@ -1,64 +1,52 @@
-import {AfterViewInit, Component, ContentChildren, Inject, OnInit, QueryList, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ContentChildren,
+  Inject,
+  OnDestroy,
+  QueryList
+} from '@angular/core';
 import {StepDirective} from '../../directives/step.directive';
-import {merge, Observable, of, timer} from 'rxjs';
+import {Observable, of, Subject, timer} from 'rxjs';
 import {FlowControlService} from '../../services/flow-control.service';
-import {startWith} from 'rxjs/operators';
+import {startWith, takeUntil} from 'rxjs/operators';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
-import {COMPONENT_FLOW_SERVICE} from '../../tokens/data-provider.token';
+import {FLOW_STATE_SERVICE} from '../../tokens/data-provider.token';
 import {ComponentFlowService} from '../../services/component-flow.service';
-import {animate, keyframes, state, style, transition, trigger} from '@angular/animations';
+import {ConfirmDialogComponent, ConfirmDialogData} from '../../../ui/components/confirm-dialog/confirm-dialog.component';
+import {shakeAnimation} from '../../lib/shake-animation';
 
 @Component({
   selector: 'app-component-flow',
   templateUrl: './component-flow.component.html',
   styleUrls: ['./component-flow.component.scss'],
-  animations: [
-    trigger('shakeit', [
-      state('true', style({
-        transform: 'scale(1)',
-      })),
-      state('false', style({
-        transform: 'scale(1)',
-      })),
-      transition('false => true', animate('750ms ease-out', keyframes([
-        style({transform: 'translate3d(-1px, 0, 0)', offset: 0.1}),
-        style({transform: 'translate3d(2px, 0, 0)', offset: 0.2}),
-        style({transform: 'translate3d(-4px, 0, 0)', offset: 0.3}),
-        style({transform: 'translate3d(4px, 0, 0)', offset: 0.4}),
-        style({transform: 'translate3d(-4px, 0, 0)', offset: 0.5}),
-        style({transform: 'translate3d(4px, 0, 0)', offset: 0.6}),
-        style({transform: 'translate3d(-4px, 0, 0)', offset: 0.7}),
-        style({transform: 'translate3d(2px, 0, 0)', offset: 0.8}),
-        style({transform: 'translate3d(-1px, 0, 0)', offset: 0.9}),
-      ]))),
-    ])],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: shakeAnimation,
   providers: [FlowControlService]
 })
-export class ComponentFlowComponent implements OnInit, AfterViewInit {
+export class ComponentFlowComponent implements AfterViewInit, OnDestroy {
   @ContentChildren(StepDirective) steps: QueryList<StepDirective>;
-  @ViewChild('closeConfirm') closeConfirm: TemplateRef<any>;
-  confirmDialog: MatDialogRef<any>;
-  shakeIt = false;
-
   currentStep: StepDirective;
+  shakeIt = false;
+  destroy$ = new Subject();
 
   constructor(
+    @Inject(FLOW_STATE_SERVICE) private flowStateService: ComponentFlowService<any>,
     public flowControlService: FlowControlService,
     public dialogRef: MatDialogRef<ComponentFlowComponent>,
     public dialog: MatDialog,
-    @Inject(COMPONENT_FLOW_SERVICE) private componentFlowService: ComponentFlowService<any>,
+    private changeDetectorRef: ChangeDetectorRef,
   ) {
-  }
-
-  ngOnInit(): void {
   }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.steps.changes.pipe(
         startWith(this.steps),
+        takeUntil(this.destroy$),
       ).subscribe(() => {
-        console.log('STEPS', this.steps);
         if (!this.currentStep || this.steps.toArray().find(step => step === this.currentStep) == null) {
           // checking if current step is still in the updated list. if not go back to 1
           this.currentStep = this.steps.toArray()[0];
@@ -72,6 +60,11 @@ export class ComponentFlowComponent implements OnInit, AfterViewInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private next(): void {
     this.currentStep = this.steps.toArray()[this.steps.toArray().indexOf(this.currentStep) + 1];
     this.updateServiceAfterStepChange();
@@ -83,7 +76,6 @@ export class ComponentFlowComponent implements OnInit, AfterViewInit {
   }
 
   updateServiceAfterStepChange(): void {
-    console.log('updateServiceAfterStepChange');
     const steps = this.steps.toArray();
     const index = steps.indexOf(this.currentStep);
 
@@ -93,6 +85,8 @@ export class ComponentFlowComponent implements OnInit, AfterViewInit {
       total: steps.length,
       current: index + 1,
     });
+
+    this.changeDetectorRef.markForCheck();
   }
 
   onNext(): void {
@@ -123,31 +117,25 @@ export class ComponentFlowComponent implements OnInit, AfterViewInit {
   }
 
   onDone(): void {
-    this.dialogRef.close(this.componentFlowService.getData());
+    this.dialogRef.close(this.flowStateService.getData());
   }
 
   onCancel(): void {
-    this.confirmDialog = this.dialog.open(this.closeConfirm, {disableClose: false});
-    this.confirmDialog.afterClosed().subscribe(doClose => {
+    this.dialog.open<ConfirmDialogComponent, ConfirmDialogData>(ConfirmDialogComponent, {
+      disableClose: false,
+      data: {message: 'Do you really want to cancel the flow?'}
+    }).afterClosed().subscribe(doClose => {
       if (doClose) {
         this.dialogRef.close();
       }
     });
   }
 
-  onConfirmClose(): void {
-    this.confirmDialog.close(true);
-  }
-
-  onCancelClose(): void {
-    this.confirmDialog.close(false);
-  }
-
   private toBooleanObservable(input?: Observable<boolean> | boolean): Observable<boolean> {
     if (input == null || input === true) {
-      return of(true);
+      return of(true).pipe(takeUntil(this.destroy$));
     } else if (input === false) {
-      return of(false);
+      return of(false).pipe(takeUntil(this.destroy$));
     }
 
     return input;

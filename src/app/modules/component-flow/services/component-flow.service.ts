@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-import {ModalFlowState} from '../../modal-flow/services/modal-flow-state.service';
+import {ModalFlowState} from '../lib/modal-flow-state';
 
 @Injectable()
 export class ComponentFlowService<T> {

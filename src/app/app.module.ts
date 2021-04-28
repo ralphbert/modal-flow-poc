@@ -4,7 +4,6 @@ import {BrowserModule} from '@angular/platform-browser';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {SharedModule} from './modules/shared/shared.module';
 import {WelcomeFlowModule} from './modules/welcome-flow/welcome-flow.module';
 import {ComponentFlowModule} from './modules/component-flow/component-flow.module';
 import {MAT_DIALOG_DEFAULT_OPTIONS, MatDialogConfig, MatDialogModule} from '@angular/material/dialog';
@@ -18,7 +17,6 @@ import {MAT_DIALOG_DEFAULT_OPTIONS, MatDialogConfig, MatDialogModule} from '@ang
     BrowserAnimationsModule,
     AppRoutingModule,
     MatDialogModule,
-    SharedModule,
     WelcomeFlowModule,
     ComponentFlowModule,
   ],

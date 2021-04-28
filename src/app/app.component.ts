@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
-import {WelcomeFlowService, WelcomeFlowState} from './modules/welcome-flow/services/welcome-flow.service';
+import {WelcomeFlowStateService, WelcomeFlowState} from './modules/welcome-flow/services/welcome-flow-state.service';
 import {WelcomeModalFlowComponent} from './modules/welcome-flow/components/welcome-modal-flow/welcome-modal-flow.component';
 
 @Component({
@@ -11,7 +11,10 @@ import {WelcomeModalFlowComponent} from './modules/welcome-flow/components/welco
 export class AppComponent {
   data: WelcomeFlowState;
 
-  constructor(private dialog: MatDialog, public welcomeFlowService: WelcomeFlowService) {
+  constructor(
+    private dialog: MatDialog,
+    public welcomeFlowService: WelcomeFlowStateService,
+  ) {
   }
 
   startFlow1(): void {

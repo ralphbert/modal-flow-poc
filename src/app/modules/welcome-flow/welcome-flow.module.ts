@@ -8,14 +8,16 @@ import {FormsModule} from '@angular/forms';
 import { OptionalStuffComponent } from './components/optional-stuff/optional-stuff.component';
 import {ComponentFlowModule} from '../component-flow/component-flow.module';
 import { WelcomeModalFlowComponent } from './components/welcome-modal-flow/welcome-modal-flow.component';
-import {WelcomeFlowService} from './services/welcome-flow.service';
-import {COMPONENT_FLOW_SERVICE} from '../component-flow/tokens/data-provider.token';
+import {WelcomeFlowStateService} from './services/welcome-flow-state.service';
+import {FLOW_STATE_SERVICE} from '../component-flow/tokens/data-provider.token';
+import {UiModule} from '../ui/ui.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     ComponentFlowModule,
+    UiModule,
   ],
   declarations: [
     WelcomeComponent,
@@ -32,9 +34,9 @@ import {COMPONENT_FLOW_SERVICE} from '../component-flow/tokens/data-provider.tok
     FinishComponent,
     OptionalStuffComponent
   ],
-  providers: [WelcomeFlowService, {
-    provide: COMPONENT_FLOW_SERVICE,
-    useExisting: WelcomeFlowService,
+  providers: [WelcomeFlowStateService, {
+    provide: FLOW_STATE_SERVICE,
+    useExisting: WelcomeFlowStateService,
   }],
 })
 export class WelcomeFlowModule {
