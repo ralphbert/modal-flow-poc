@@ -1,21 +1,23 @@
-import {Directive, TemplateRef, ViewContainerRef} from '@angular/core';
+import {Directive, EventEmitter, Output, TemplateRef} from '@angular/core';
 import {ModalFlowStepInterface} from '../interfaces/modal-flow-step.interface';
 import {TitleDirective} from './title.directive';
 
 @Directive({
-    selector: '[appStep]'
+  selector: '[appStep]'
 })
 export class StepDirective {
-    component: ModalFlowStepInterface;
-    titleDirective?: TitleDirective;
+  component: ModalFlowStepInterface;
+  titleDirective?: TitleDirective;
+  @Output() afterInit = new EventEmitter();
 
-    constructor(public templateRef: TemplateRef<any>, private viewContainerRef: ViewContainerRef) {
-        console.log(this.viewContainerRef);
-    }
+  constructor(public templateRef: TemplateRef<any>) {
+  }
 
-    setStepInterface(component: ModalFlowStepInterface): void {
-        setTimeout(() => {
-            this.component = component;
-        });
-    }
+  setStepInterface(component: ModalFlowStepInterface): void {
+    setTimeout(() => {
+      this.component = component;
+      this.afterInit.emit();
+      console.log('setStepInterface', component);
+    });
+  }
 }

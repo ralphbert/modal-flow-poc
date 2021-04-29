@@ -1,6 +1,4 @@
-import {ChangeDetectionStrategy, Component, Injector} from '@angular/core';
-import {BaseStepComponent} from '../../../component-flow/components/base-step/base-step.component';
-import {WelcomeFlowStateService} from '../../services/welcome-flow-state.service';
+import {ChangeDetectionStrategy, Component} from '@angular/core';
 
 @Component({
   selector: 'app-welcome',
@@ -8,9 +6,5 @@ import {WelcomeFlowStateService} from '../../services/welcome-flow-state.service
   styleUrls: ['./welcome.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WelcomeComponent extends BaseStepComponent {
-  constructor(injector: Injector, public welcomeFlowService: WelcomeFlowStateService) {
-    super(injector);
-  }
-
+export class WelcomeComponent {
 }

@@ -6,39 +6,50 @@ import {
   ContentChildren,
   Inject,
   OnDestroy,
+  OnInit,
   QueryList
 } from '@angular/core';
 import {StepDirective} from '../../directives/step.directive';
 import {Observable, of, Subject, timer} from 'rxjs';
 import {FlowControlService} from '../../services/flow-control.service';
-import {startWith, takeUntil} from 'rxjs/operators';
+import {startWith, take, takeUntil, tap} from 'rxjs/operators';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {FLOW_STATE_SERVICE} from '../../tokens/data-provider.token';
-import {ComponentFlowService} from '../../services/component-flow.service';
+import {BaseStateService} from '../../services/base-state.service';
 import {ConfirmDialogComponent, ConfirmDialogData} from '../../../ui/components/confirm-dialog/confirm-dialog.component';
 import {shakeAnimation} from '../../lib/shake-animation';
 
 @Component({
-  selector: 'app-component-flow',
-  templateUrl: './component-flow.component.html',
-  styleUrls: ['./component-flow.component.scss'],
+  selector: 'app-flow-container',
+  templateUrl: './flow-container.component.html',
+  styleUrls: ['./flow-container.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: shakeAnimation,
   providers: [FlowControlService]
 })
-export class ComponentFlowComponent implements AfterViewInit, OnDestroy {
+export class FlowContainerComponent implements AfterViewInit, OnDestroy, OnInit {
   @ContentChildren(StepDirective) steps: QueryList<StepDirective>;
   currentStep: StepDirective;
   shakeIt = false;
   destroy$ = new Subject();
 
   constructor(
-    @Inject(FLOW_STATE_SERVICE) private flowStateService: ComponentFlowService<any>,
+    @Inject(FLOW_STATE_SERVICE) private flowStateService: BaseStateService<any>,
     public flowControlService: FlowControlService,
-    public dialogRef: MatDialogRef<ComponentFlowComponent>,
+    public dialogRef: MatDialogRef<FlowContainerComponent>,
     public dialog: MatDialog,
     private changeDetectorRef: ChangeDetectorRef,
   ) {
+  }
+
+  ngOnInit(): void {
+    this.flowControlService.onGoNext$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.onNext();
+    });
+
+    this.flowControlService.onGoBack$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.onPrev();
+    });
   }
 
   ngAfterViewInit(): void {
@@ -46,17 +57,20 @@ export class ComponentFlowComponent implements AfterViewInit, OnDestroy {
       this.steps.changes.pipe(
         startWith(this.steps),
         takeUntil(this.destroy$),
-      ).subscribe(() => {
-        if (!this.currentStep || this.steps.toArray().find(step => step === this.currentStep) == null) {
-          // checking if current step is still in the updated list. if not go back to 1
-          this.currentStep = this.steps.toArray()[0];
-        }
+        tap(() => {
+          console.log('this.steps.changes');
+          if (!this.currentStep || this.steps.toArray().find(step => step === this.currentStep) == null) {
+            // checking if current step is still in the updated list. if not go back to 1
+            this.currentStep = this.steps.toArray()[0];
+          }
 
-        if (this.currentStep == null) {
-          throw new Error('no step 1 found');
-        }
-        this.updateServiceAfterStepChange();
-      });
+          if (this.currentStep == null) {
+            throw new Error('no step 1 found');
+          }
+
+          this.updateServiceAfterStepChange();
+        }),
+      ).subscribe();
     });
   }
 
@@ -65,17 +79,8 @@ export class ComponentFlowComponent implements AfterViewInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private next(): void {
-    this.currentStep = this.steps.toArray()[this.steps.toArray().indexOf(this.currentStep) + 1];
-    this.updateServiceAfterStepChange();
-  }
-
-  private goBack(): void {
-    this.currentStep = this.steps.toArray()[this.steps.toArray().indexOf(this.currentStep) - 1];
-    this.updateServiceAfterStepChange();
-  }
-
   updateServiceAfterStepChange(): void {
+    console.log('updateServiceAfterStepChange');
     const steps = this.steps.toArray();
     const index = steps.indexOf(this.currentStep);
 
@@ -84,6 +89,10 @@ export class ComponentFlowComponent implements AfterViewInit, OnDestroy {
       isLast: index >= steps.length - 1,
       total: steps.length,
       current: index + 1,
+      disableNext: false,
+      disableGoBack: false,
+      showNext: true,
+      showGoBack: index !== 0,
     });
 
     this.changeDetectorRef.markForCheck();
@@ -94,6 +103,7 @@ export class ComponentFlowComponent implements AfterViewInit, OnDestroy {
       this.toBooleanObservable(
         this.currentStep.component?.canGoNext && this.currentStep.component?.canGoNext()
       ).subscribe(result => {
+        console.log('onNext');
         if (result) {
           this.next();
         } else {
@@ -117,7 +127,14 @@ export class ComponentFlowComponent implements AfterViewInit, OnDestroy {
   }
 
   onDone(): void {
-    this.dialogRef.close(this.flowStateService.getData());
+    if (!this.flowControlService.getData().isFirst) {
+      this.toBooleanObservable(this.currentStep.component?.canGoNext && this.currentStep.component?.canGoNext())
+        .subscribe(result => {
+          if (result) {
+            this.dialogRef.close(this.flowStateService.getData());
+          }
+        });
+    }
   }
 
   onCancel(): void {
@@ -131,13 +148,23 @@ export class ComponentFlowComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  private next(): void {
+    this.currentStep = this.steps.toArray()[this.steps.toArray().indexOf(this.currentStep) + 1];
+    this.updateServiceAfterStepChange();
+  }
+
+  private goBack(): void {
+    this.currentStep = this.steps.toArray()[this.steps.toArray().indexOf(this.currentStep) - 1];
+    this.updateServiceAfterStepChange();
+  }
+
   private toBooleanObservable(input?: Observable<boolean> | boolean): Observable<boolean> {
     if (input == null || input === true) {
-      return of(true).pipe(takeUntil(this.destroy$));
+      return of(true);
     } else if (input === false) {
-      return of(false).pipe(takeUntil(this.destroy$));
+      return of(false);
     }
 
-    return input;
+    return input.pipe(takeUntil(this.destroy$), take(1));
   }
 }

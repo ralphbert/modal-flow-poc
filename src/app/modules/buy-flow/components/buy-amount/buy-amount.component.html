@@ -1,0 +1,15 @@
+<div *ngIf="stateService.dataChanges$ | async as state">
+  <div *appFlowTitle class="text-center">
+    Increase your richness 💰 {{ total | number: '.0-6'  }} {{ symbol }}
+  </div>
+
+  <h2>{{ state.product.name }}</h2>
+
+  <div>
+    <input
+      type="number"
+      [value]="state.amount"
+      (input)="onAmountChange(+amount.value)" #amount> EUR
+    = {{ total | number: '.0-6'  }} {{ symbol }}
+  </div>
+</div>

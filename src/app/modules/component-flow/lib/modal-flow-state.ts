@@ -5,6 +5,10 @@ export interface ModalFlowMeta {
   isLast: boolean;
   total: number;
   current: number;
+  showNext: boolean;
+  disableNext: boolean;
+  showGoBack: boolean;
+  disableGoBack: boolean;
 }
 
 export interface ModalFlowStateHandler<T> {
@@ -24,10 +28,10 @@ export class ModalFlowState<T> implements ModalFlowStateHandler<T> {
   }
 
   setState(state: Readonly<T>): void {
-    console.log('setData data  ', state);
-    console.log('setData before', this.getState());
+    console.log('%csetData data  ', 'color: gray;', state);
+    console.log('%csetData before', 'color: orange;', this.getState());
     this.stateChanged$$.next({...state});
-    console.log('setData after ', this.getState());
+    console.log('%csetData after ', 'color: green;', this.getState());
   }
 
   getState(): Readonly<T> {

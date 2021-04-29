@@ -24,9 +24,14 @@ export class SettingsComponent extends BaseStepComponent<WelcomeFlowState> imple
   }
 
   ngOnInit(): void {
+    this.welcomeFlowService.dataChanges$.subscribe(data => {
+      this.flowControlService.disableNext(this.getDisableNext());
+    });
+
     this.load$
       .pipe(
         tap(() => {
+          this.flowControlService.disableNext(true);
           this.loading = true;
           this.error = null;
           this.changeDetectorRef.markForCheck();
@@ -43,6 +48,7 @@ export class SettingsComponent extends BaseStepComponent<WelcomeFlowState> imple
       )
       .subscribe(() => {
         this.loading = false;
+        this.flowControlService.disableNext(this.getDisableNext());
         this.changeDetectorRef.markForCheck();
       });
 
@@ -54,7 +60,7 @@ export class SettingsComponent extends BaseStepComponent<WelcomeFlowState> imple
     this.destroy$.complete();
   }
 
-  disableNext(): boolean {
+  getDisableNext(): boolean {
     return this.loading || this.error || this.stateService.getData().settings.name.length <= 0;
   }
 

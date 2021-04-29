@@ -1,18 +1,18 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {ComponentFlowComponent} from './components/component-flow/component-flow.component';
+import {FlowContainerComponent} from './components/flow-container/flow-container.component';
 import {StepDirective} from './directives/step.directive';
 import {TitleDirective} from './directives/title.directive';
 import {UiModule} from '../ui/ui.module';
 
 @NgModule({
   declarations: [
-    ComponentFlowComponent,
+    FlowContainerComponent,
     StepDirective,
     TitleDirective,
   ],
   exports: [
-    ComponentFlowComponent,
+    FlowContainerComponent,
     StepDirective,
     TitleDirective,
   ],

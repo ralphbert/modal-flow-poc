@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {ComponentFlowService} from '../../component-flow/services/component-flow.service';
+import {BaseStateService} from '../../component-flow/services/base-state.service';
 
 export interface WelcomeFlowState {
   disclaimer: boolean;
@@ -9,8 +9,10 @@ export interface WelcomeFlowState {
   };
 }
 
-@Injectable()
-export class WelcomeFlowStateService extends ComponentFlowService<WelcomeFlowState> {
+@Injectable({
+  providedIn: 'root',
+})
+export class WelcomeFlowStateService extends BaseStateService<WelcomeFlowState> {
   constructor() {
     super({
       settings: {

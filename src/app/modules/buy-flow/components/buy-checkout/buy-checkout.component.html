@@ -1,0 +1,11 @@
+<app-loading-wrapper [loading]="loading">
+  <div class="alert alert-danger" *ngIf="error">{{ error.message }}</div>
+
+  <div class="form-check" *ngIf="stateService.dataChanges$ | async as state">
+    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" [checked]="state.accept"
+           (change)="onAccept(!state.accept)">
+    <label class="form-check-label" for="defaultCheck1">
+      Accept deal?
+    </label>
+  </div>
+</app-loading-wrapper>

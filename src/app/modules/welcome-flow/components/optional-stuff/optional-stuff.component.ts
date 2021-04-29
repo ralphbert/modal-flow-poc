@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, Injector, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Injector} from '@angular/core';
 import {BaseStepComponent} from '../../../component-flow/components/base-step/base-step.component';
 import {Observable} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
@@ -10,12 +10,9 @@ import {ConfirmDialogComponent, ConfirmDialogData} from '../../../ui/components/
   styleUrls: ['./optional-stuff.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OptionalStuffComponent extends BaseStepComponent implements OnInit {
+export class OptionalStuffComponent extends BaseStepComponent {
   constructor(injector: Injector, private dialog: MatDialog) {
     super(injector);
-  }
-
-  ngOnInit(): void {
   }
 
   canGoNext(): Observable<boolean> | boolean {

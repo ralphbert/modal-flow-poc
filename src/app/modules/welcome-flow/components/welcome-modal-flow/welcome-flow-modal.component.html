@@ -1,9 +1,11 @@
-<app-component-flow>
+<app-flow-container>
   <app-welcome *appStep></app-welcome>
   <app-settings *appStep></app-settings>
+
   <ng-container *ngIf="(welcomeFlowService.dataChanges$ | async).settings.enablePushes">
     <app-optional-stuff *appStep></app-optional-stuff>
   </ng-container>
+
   <app-disclaimer *appStep></app-disclaimer>
   <app-finish *appStep></app-finish>
-</app-component-flow>
+</app-flow-container>

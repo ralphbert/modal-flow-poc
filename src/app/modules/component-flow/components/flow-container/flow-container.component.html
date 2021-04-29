@@ -5,8 +5,8 @@
         <div>
           <button
             class="btn btn-link"
-            *ngIf="!state.isFirst"
-            [disabled]="currentStep?.component?.disableGoBack && currentStep?.component?.disableGoBack()"
+            *ngIf="state.showGoBack"
+            [disabled]="state.disableGoBack"
             (click)="onPrev()">
             Prev
           </button>
@@ -23,17 +23,17 @@
           </ng-template>
         </div>
 
-        <div>
+        <div *ngIf="state.showNext">
           <button
             class="btn btn-link"
             *ngIf="!state.isLast"
             (click)="onNext()"
-            [disabled]="currentStep?.component?.disableNext && currentStep?.component?.disableNext()">Next</button>
+            [disabled]="state.disableNext">Next</button>
           <button
             class="btn btn-success"
             *ngIf="state.isLast"
             (click)="onDone()"
-            [disabled]="currentStep?.component?.disableNext && currentStep?.component?.disableNext()">Done</button>
+            [disabled]="state.disableNext">Done</button>
         </div>
       </div>
     </header>

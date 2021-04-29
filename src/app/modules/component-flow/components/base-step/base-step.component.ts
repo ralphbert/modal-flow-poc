@@ -5,7 +5,7 @@ import {Observable} from 'rxjs';
 import {FlowControlService} from '../../services/flow-control.service';
 import {TitleDirective} from '../../directives/title.directive';
 import {FLOW_STATE_SERVICE} from '../../tokens/data-provider.token';
-import {ComponentFlowService} from '../../services/component-flow.service';
+import {BaseStateService} from '../../services/base-state.service';
 
 @Component({
   template: '',
@@ -13,7 +13,7 @@ import {ComponentFlowService} from '../../services/component-flow.service';
 export abstract class BaseStepComponent<T = any> implements ModalFlowStepInterface {
   protected stepDirective: StepDirective;
   protected flowControlService: FlowControlService;
-  public stateService: ComponentFlowService<T>;
+  public stateService: BaseStateService<T>;
   public changeDetectorRef: ChangeDetectorRef;
 
   @ViewChild(TitleDirective) set titleDirective(titleDirective: TitleDirective) {
@@ -29,14 +29,6 @@ export abstract class BaseStepComponent<T = any> implements ModalFlowStepInterfa
     this.flowControlService = injector.get(FlowControlService);
     this.stateService = injector.get(FLOW_STATE_SERVICE);
     this.changeDetectorRef = injector.get(ChangeDetectorRef);
-  }
-
-  disableNext(): boolean {
-    return false;
-  }
-
-  disableGoBack(): boolean {
-    return false;
   }
 
   canGoNext(): Observable<boolean> | boolean {

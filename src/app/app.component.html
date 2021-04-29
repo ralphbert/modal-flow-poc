@@ -1,15 +1,81 @@
 <div class="container py-3">
-  <button (click)="startFlow1()">Open Flow!</button>
+  <h1 class="mb-5">Modal Flow POC</h1>
 
   <div class="row">
     <div class="col">
-      <h2>Resulting data</h2>
-      <pre>{{ data | json }}</pre>
+      <div class="mb-3">
+        <button class="btn btn-primary" (click)="startWelcomeFlow()">Open Welcome Flow! 🙋‍♀️</button>
+      </div>
+
+      <h2>Welcome flow data</h2>
+      <pre>{{ welcomeFlowResult | json }}</pre>
     </div>
     <div class="col">
-      <h2>Current flow meta data</h2>
-      <pre>TODO</pre>
+      <div class="mb-3">
+        <button class="btn btn-primary" (click)="startBuyFlow()">Open Buy Flow! 🤑</button>
+      </div>
+
+      <h2>Buy flow data</h2>
+      <pre>{{ buyFlowResult | json }}</pre>
     </div>
   </div>
+</div>
 
+<div class="container py-3">
+  <h2>How to use it</h2>
+  <ol>
+    <li>
+      <p>Create a new module that hosts your flow</p>
+    </li>
+    <li>
+      <p>Create a state interface that represents the resulting data (e.g. <code>BuyFlowState</code>)</p>
+    </li>
+    <li>
+      <p>Create a data state service for that flow (e.g. <code>buy-flow-state.service.ts</code>) by extending <code>BaseStateService</code>.</p>
+      <p>It contains a immutable state and manages state manipulation.</p>
+      <p>It inherits from <code>BaseStateService</code> which takes the initial state as an argument.</p>
+      <p>Provide it at modal component level with the token <code>FLOW_STATE_SERVICE</code></p>
+    </li>
+    <li>
+      <p>Create a component that represents your modal and it contains your flow as a set of components (e.g. <code>BuyFlowModalComponent</code>)</p>
+      <p>It needs a <code>app-flow-container</code> component filled with the components in the correct order and add the <code>*appStep</code> directive to them.</p>
+      <p>You can manipulate the components depending on state changes. So removing and adding new step-components is supported (see <code>WelcomeFlowModalComponent</code>).</p>
+    </li>
+  </ol>
+
+  <h2>How it works</h2>
+  <ul>
+    <li>
+      <p>Each flow has a data state service (extends <code>BaseStateService</code>), provided by the token <code>FLOW_STATE_SERVICE</code>.</p>
+      <p>Because each flow may have its own data-state it is recommended to provide it on the modal component (e.g. <code>BuyFlowModalComponent</code>)</p>
+      <p>This is the single source of truth of your data throughout the modal flow.</p>
+    </li>
+    <li>
+      <p>Each of the steps (having the <code>*appStep</code> directive) represents a single step of your flow.</p>
+      <p>It is self contained and can perform any async operation. (see <code>SettingsComponent</code>)</p>
+      <p>This components can inherit from <code>BaseStepComponent</code> to automatically get convenience methods for manipulating the UI of the modal and manipulating the state.</p>
+      <p>It can control the visibility and behavior of the <code>prev/next</code> buttons by using the <code>flowControlService</code></p>
+      <p>It also can provide a custom header to the modal by using the <code>*appFlowTitle</code> directive.</p>
+      <p>Each step-component should perform it's task and validate its data.</p>
+      <p>Each step-component should access the current state and manipulate the state.</p>
+    </li>
+    <li>
+      <p>The flow itself is managed by the <code>StepDirective</code>, the <code>FlowControlService</code> and the <code>FlowContainerComponent</code></p>
+    </li>
+    <li>
+      <p><code>StepDirective</code>: Used by the <code>FlowContainerComponent</code> to query the step-components of the flow. It holds a reference to the component it is assigned to. This allows the <code>FlowContainerComponent</code> to access its methods.</p>
+      <p><code>FlowContainerComponent</code>: Looks for <code>StepDirective</code> (and any further changes) and updates the flow state by using the <code>FlowControlService</code>. It is the actual core and contains most of the logic. It has access to the current active step-component and can call methods on it. It uses the <code>FlowControlState</code> to enable/disable/show/hide the navigation buttons.</p>
+      <p><code>FlowControlService</code>: Only stores the current "position"-information of the flow (current position, is it the last, the first, ...) defined by the <code>ModalFlowMeta</code> interface. Will be updated by <code>FlowContainerComponent</code> when a navigation happens.</p>
+      <p><code>BaseStateService</code>: Single source of truth of your data. If provided at modal-component level and is used to retrieve and store your data throughout the flow. </p>
+    </li>
+    <li>
+      <p>In the end the flow returns the final state from the <code>BaseStateService</code> provided by <code>FLOW_STATE_SERVICE</code>.</p>
+    </li>
+    <li>
+      <p>The flow offers a cancel button with a confirm modal.</p>
+    </li>
+    <li>
+      <p>Each step-component can offer a <code>canGoNext/canGoBack</code> method that returns a <code>Observable</code> that eventually emits a <code>boolean</code>. Because of this the developer can ask the user before going forward/backward and perform any additional (async) logic (see <code>OptionalStuffComponent</code>).</p>
+    </li>
+  </ul>
 </div>

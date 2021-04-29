@@ -1,5 +1,4 @@
-import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
-import {Observable} from 'rxjs';
+import {ChangeDetectionStrategy, Component} from '@angular/core';
 
 @Component({
   selector: 'app-finish',
@@ -7,15 +6,6 @@ import {Observable} from 'rxjs';
   styleUrls: ['./finish.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FinishComponent implements OnInit {
+export class FinishComponent {
 
-  constructor() {
-  }
-
-  ngOnInit(): void {
-  }
-
-  canClose(): Observable<boolean> | boolean {
-    return true;
-  }
 }

@@ -3,7 +3,7 @@ import {Observable} from 'rxjs';
 import {ModalFlowState} from '../lib/modal-flow-state';
 
 @Injectable()
-export class ComponentFlowService<T> {
+export class BaseStateService<T> {
   dataState: ModalFlowState<T>;
 
   constructor(initialState: T) {
